@@ -40,11 +40,17 @@ export const Owner = styled.header`
     text-align: center;
     max-width: 400px;
   }
+
+  div {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
 `;
 
 export const IssuesList = styled.ul`
   padding-top: 30px;
-  margin-top: 30px;
+  margin-top: 20px;
   border-top: 1px solid #eee;
   list-style: none;
 
@@ -99,5 +105,19 @@ export const IssuesList = styled.ul`
       font-size: 12px;
       color: #999;
     }
+  }
+`;
+
+export const Button = styled.button`
+  width: 70px;
+  border: 0;
+  background: #eee;
+  margin: 5px 10px;
+  padding: 4px 6px;
+  border-radius: 4px;
+
+  &:hover {
+    background: #7159c1;
+    color: #fff;
   }
 `;

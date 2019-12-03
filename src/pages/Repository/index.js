@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssuesList } from './styles';
+import { Loading, Owner, IssuesList, Button } from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -21,7 +21,7 @@ export default class Repository extends Component {
     loading: true,
   };
 
-  async componentDidMount() {
+  async componentDidMount(filter = 'all') {
     const { match } = this.props;
 
     const repoName = decodeURIComponent(match.params.repository);
@@ -35,14 +35,11 @@ export default class Repository extends Component {
       api.get(`/repos/${repoName}`),
       api.get(`/repos/${repoName}/issues`, {
         params: {
-          state: 'open',
+          state: filter,
           per_page: 10,
         },
       }),
     ]);
-
-    // console.log(repository);
-    // console.log(issues);
 
     this.setState({
       repository: repository.data,
@@ -50,6 +47,10 @@ export default class Repository extends Component {
       loading: false,
     });
   }
+
+  handleSetFilter = e => {
+    this.componentDidMount(e.target.name);
+  };
 
   render() {
     const { repository, issues, loading } = this.state;
@@ -65,8 +66,18 @@ export default class Repository extends Component {
           <img src={repository.owner.avatar_url} alt={repository.owner.login} />
           <h1>{repository.name}</h1>
           <p>{repository.description}</p>
+          <div>
+            <Button name="all" onClick={this.handleSetFilter}>
+              Todos
+            </Button>
+            <Button name="open" onClick={this.handleSetFilter}>
+              Aberto
+            </Button>
+            <Button name="closed" onClick={this.handleSetFilter}>
+              Fechado
+            </Button>
+          </div>
         </Owner>
-
         <IssuesList>
           {issues.map(issue => (
             <li key={String(issue.id)}>
