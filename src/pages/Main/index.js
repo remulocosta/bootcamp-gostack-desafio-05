@@ -14,6 +14,7 @@ export default class Main extends Component {
     newRepo: '',
     repositories: [],
     loading: false,
+    invalidURL: false,
   };
 
   // Carregar os dados do localStorrage
@@ -41,28 +42,36 @@ export default class Main extends Component {
   handleSubmit = async e => {
     e.preventDefault();
 
-    this.setState({ loading: true });
+    this.setState({ loading: true, invalidURL: true });
 
-    // console.log(this.state.newRepo);
-    const { newRepo, repositories } = this.state;
+    try {
+      const { newRepo, repositories } = this.state;
 
-    const response = await api.get(`/repos/${newRepo}`);
+      const response = await api.get(`/repos/${newRepo}`);
 
-    // console.log(response);
+      const data = {
+        name: response.data.full_name,
+      };
 
-    const data = {
-      name: response.data.full_name,
-    };
+      this.setState({
+        repositories: [...repositories, data],
+        newRepo: '',
+        loading: false,
+        invalidURL: false,
+      });
 
-    this.setState({
-      repositories: [...repositories, data],
-      newRepo: '',
-      loading: false,
-    });
+      // console.log(this.state.newRepo);
+    } catch (error) {
+      console.log('URL não localizada.');
+      this.setState({
+        loading: false,
+        invalidURL: true,
+      });
+    }
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, repositories, loading, invalidURL } = this.state;
     return (
       <Container>
         <h1>
@@ -70,7 +79,7 @@ export default class Main extends Component {
           Repositórios
         </h1>
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} valid={invalidURL ? 1 : 0}>
           <input
             type="text"
             placeholder="Adicionar repositório"
