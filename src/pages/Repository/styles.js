@@ -121,3 +121,30 @@ export const Button = styled.button`
     color: #fff;
   }
 `;
+
+export const DivButtonPage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const ButtonPage = styled.button`
+  width: 100px;
+  border: 0;
+  background: #eee;
+  margin: 5px 10px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    background: #7159c1;
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+`;

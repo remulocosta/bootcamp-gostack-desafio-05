@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssuesList, Button } from './styles';
+import {
+  Loading,
+  Owner,
+  IssuesList,
+  Button,
+  DivButtonPage,
+  ButtonPage,
+} from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -19,24 +27,24 @@ export default class Repository extends Component {
     repository: {},
     issues: [],
     loading: true,
+    filter: 'all',
+    page: 1,
   };
 
-  async componentDidMount(filter = 'all') {
+  async componentDidMount() {
     const { match } = this.props;
 
+    const { filter, page } = this.state;
+
     const repoName = decodeURIComponent(match.params.repository);
-
-    // console.log(repoName);
-
-    // const response = await api.get(`/repos/${repoName}`);
-    // const issues = await api.get(`/repos/${repoName}/issues`);
 
     const [repository, issues] = await Promise.all([
       api.get(`/repos/${repoName}`),
       api.get(`/repos/${repoName}/issues`, {
         params: {
           state: filter,
-          per_page: 10,
+          per_page: 5,
+          page,
         },
       }),
     ]);
@@ -48,12 +56,22 @@ export default class Repository extends Component {
     });
   }
 
-  handleSetFilter = e => {
-    this.componentDidMount(e.target.name);
+  handleSetFilter = async setFilter => {
+    await this.setState({ filter: setFilter });
+
+    this.componentDidMount();
+  };
+
+  handleSetPage = async setPage => {
+    const { page } = this.state;
+
+    await this.setState({ page: page + setPage });
+
+    this.componentDidMount();
   };
 
   render() {
-    const { repository, issues, loading } = this.state;
+    const { repository, issues, loading, page } = this.state;
 
     if (loading) {
       return <Loading>Carregando</Loading>;
@@ -67,13 +85,9 @@ export default class Repository extends Component {
           <h1>{repository.name}</h1>
           <p>{repository.description}</p>
           <div>
-            <Button name="all" onClick={this.handleSetFilter}>
-              Todos
-            </Button>
-            <Button name="open" onClick={this.handleSetFilter}>
-              Aberto
-            </Button>
-            <Button name="closed" onClick={this.handleSetFilter}>
+            <Button onClick={() => this.handleSetFilter('all')}>Todos</Button>
+            <Button onClick={() => this.handleSetFilter('open')}>Aberto</Button>
+            <Button onClick={() => this.handleSetFilter('closed')}>
               Fechado
             </Button>
           </div>
@@ -94,6 +108,20 @@ export default class Repository extends Component {
             </li>
           ))}
         </IssuesList>
+        <DivButtonPage>
+          <ButtonPage
+            disabled={page < 2}
+            onClick={() => this.handleSetPage(-1)}
+          >
+            <IoIosArrowBack />
+            Anterior
+          </ButtonPage>
+
+          <ButtonPage onClick={() => this.handleSetPage(1)}>
+            Próxima
+            <IoIosArrowForward />
+          </ButtonPage>
+        </DivButtonPage>
       </Container>
     );
   }
