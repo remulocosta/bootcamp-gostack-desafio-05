@@ -47,6 +47,19 @@ export default class Main extends Component {
     try {
       const { newRepo, repositories } = this.state;
 
+      // const index = projects.findIndex(project => project.id == req.params.id)
+      // const project = projects[index];
+
+      const existRepo = repositories.findIndex(
+        repository => repository.name === newRepo
+      );
+
+      // const existRepo = repositories[Repo];
+
+      if (repositories[existRepo]) {
+        throw new Error('Repositório duplicado');
+      }
+
       const response = await api.get(`/repos/${newRepo}`);
 
       const data = {
@@ -62,7 +75,7 @@ export default class Main extends Component {
 
       // console.log(this.state.newRepo);
     } catch (error) {
-      console.log('URL não localizada.');
+      console.log(error.message);
       this.setState({
         loading: false,
         invalidURL: true,
